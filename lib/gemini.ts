@@ -2,9 +2,9 @@
 // route.ts = "How does my application receive a user's request and ask Gemini to process it?"
 // page.tsx = "How does the user interact with my application?"
 
-
 import { GoogleGenAI, Type } from "@google/genai";
-//Creating a Gemini client using the API key stored in my project.
+
+// Creating a Gemini client using the API key stored in my project.
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
@@ -18,7 +18,6 @@ export type SummaryResult = {
 export async function generateSummary(
   notes: string
 ): Promise<SummaryResult> {
-    //the prompt we're sending to the model.
   const prompt = `
 You are NoteWise AI, an educational notes assistant.
 
@@ -50,48 +49,106 @@ NOTES:
 ${notes}
 `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3.8-flash",//Use this Gemini model for the generation.
-    contents: prompt,//the prompt we're sending to the model.
+  const config = {
+    responseMimeType: "application/json",
 
-    config: {
-      responseMimeType: "application/json",
+    responseSchema: {
+      type: Type.OBJECT,
 
-      responseSchema: {
-        type: Type.OBJECT,
-
-        properties: {
-          summary: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.STRING,
-            },
-          },
-
-          keywords: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.STRING,
-            },
-          },
-
-          beginner_explanation: {
+      properties: {
+        summary: {
+          type: Type.ARRAY,
+          items: {
             type: Type.STRING,
           },
         },
 
-        required: [
-          "summary",
-          "keywords",
-          "beginner_explanation",
-        ],
-      },
-    },
-  });
+        keywords: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.STRING,
+          },
+        },
 
-  if (!response.text) {
-    throw new Error("Gemini returned an empty response.");
+        beginner_explanation: {
+          type: Type.STRING,
+        },
+      },
+
+      required: [
+        "summary",
+        "keywords",
+        "beginner_explanation",
+      ],
+    },
+  };
+
+  const models = [
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+  ];
+
+  let lastError: unknown;
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        console.log(
+          `Trying ${model} (attempt ${attempt + 1}/3)...`
+        );
+
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config,
+        });
+
+        if (!response.text) {
+          throw new Error("Gemini returned an empty response.");
+        }
+
+        return JSON.parse(response.text) as SummaryResult;
+      } catch (error: any) {
+        lastError = error;
+
+        const status = error?.status;
+
+        console.error(
+          `${model} failed on attempt ${attempt + 1}:`,
+          error
+        );
+
+        // Retry only temporary server/rate-limit errors.
+        if (
+          status !== 503 &&
+          status !== 429 &&
+          status !== 500 &&
+          status !== 502 &&
+          status !== 504
+        ) {
+          throw error;
+        }
+
+        // Exponential backoff:
+        // 1 second → 2 seconds → 4 seconds
+        const delay = 1000 * Math.pow(2, attempt);
+
+        console.log(
+          `Retrying in ${delay / 1000} seconds...`
+        );
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, delay)
+        );
+      }
+    }
+
+    console.log(
+      `${model} failed after 3 attempts. Trying fallback model...`
+    );
   }
 
-  return JSON.parse(response.text) as SummaryResult;
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Gemini service is temporarily unavailable.");
 }
