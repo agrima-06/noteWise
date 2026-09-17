@@ -72,6 +72,7 @@ https://notewise-inky.vercel.app/
 
 The application follows a simple full-stack architecture:
 
+```text
 User
  │
  ▼
@@ -101,6 +102,3 @@ Frontend
  ├── Summary
  ├── Keywords
  └── Beginner Explanation
-
-Live Demo:
-https://notewise-inky.vercel.app/
