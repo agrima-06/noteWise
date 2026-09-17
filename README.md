@@ -1,39 +1,106 @@
+# NoteWise AI 🧠
 
-vercel link -https://notewise-inky.vercel.app/
+> Turn messy notes into clear knowledge.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+NoteWise AI is an AI-powered notes summarization tool that transforms long or unstructured study material into concise summaries, important keywords, and beginner-friendly explanations.
 
-## Getting Started
+The project was built as an MVP to explore **LLM API integration, prompt engineering, structured AI responses, and full-stack development using Next.js**.
 
-First, run the development server:
+## 🚀 Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Vercel:**  
+https://notewise-inky.vercel.app/
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 📝 **Smart Notes Summarization**
+  - Convert long notes into 4–7 concise bullet points.
+  - Focuses on the most important concepts and facts.
 
-## Learn More
+- 🔑 **Important Keywords**
+  - Extracts 5–10 key concepts from the provided notes.
+  - Helps quickly identify the important topics.
 
-To learn more about Next.js, take a look at the following resources:
+- 🧑‍🎓 **Beginner-Friendly Explanation**
+  - Explains complex concepts using simple language.
+  - Uses analogies or examples when useful.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- ⚡ **AI-Powered Processing**
+  - Uses Google's Gemini API to analyze and structure the notes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 📦 **Structured AI Output**
+  - Gemini returns predictable JSON containing:
+    - Summary
+    - Keywords
+    - Beginner explanation
 
-## Deploy on Vercel
+- 🔄 **Retry & Fallback Handling**
+  - Handles temporary Gemini API failures.
+  - Retries transient API errors before falling back to another model.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- 📱 **Responsive Interface**
+  - Designed to work across desktop and mobile screens.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **Next.js**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+
+### Backend
+
+- **Next.js Route Handlers**
+- **Google Gemini API**
+- **@google/genai**
+
+### Development
+
+- **Git**
+- **GitHub**
+- **Vercel**
+
+---
+
+## 🏗️ Project Architecture
+
+The application follows a simple full-stack architecture:
+
+User
+ │
+ ▼
+Next.js Frontend
+ │
+ │ POST /api/summarize
+ ▼
+Next.js API Route
+ │
+ ▼
+Gemini Service
+ │
+ │ Prompt + Notes
+ ▼
+Google Gemini API
+ │
+ │ Structured JSON
+ ▼
+Gemini Service
+ │
+ ▼
+API Route
+ │
+ ▼
+Frontend
+ │
+ ├── Summary
+ ├── Keywords
+ └── Beginner Explanation
+
+Live Demo:
+https://notewise-inky.vercel.app/
